@@ -1,0 +1,36 @@
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+  query_log_file: 'query.log'
+
+# 告警对接配置
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      - 'localhost:9093'
+
+# 规则引擎具体规则配置
+rule_files:
+  - /usr/local/prometheus/rules/*.yaml
+
+scrape_configs:
+  - job_name: 'prometheus'
+    file_sd_configs:
+    - files:
+      - /usr/local/prometheus/targets/prometheus*.yaml
+
+  - job_name: 'node'
+    file_sd_configs:
+    - files:
+      - /usr/local/prometheus/targets/nodes*.yaml
+
+  - job_name: 'clickhouse'
+    file_sd_configs:
+    - files:
+      - /usr/local/prometheus/targets/clickhouse*.yaml
+
+  - job_name: 'rabbitmq'
+    file_sd_configs:
+    - files:
+      - /usr/local/prometheus/targets/rabbitmq*.yaml

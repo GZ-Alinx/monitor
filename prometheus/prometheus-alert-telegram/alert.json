@@ -1,0 +1,38 @@
+{
+	'receiver': 'webhook',
+	'status': 'firing',
+	'alerts': [{
+		'status': 'firing',
+		'labels': {
+			'alertname': '内存使用率',
+			'instance': '10.127.92.100',
+			'job': 'sentry',
+			'severity': 'warning',
+			'team': 'ops'
+		},
+		'annotations': {
+			'description': '内存使用率已超过55%，内存使用率：58%',
+			'summary': '内存使用率'
+		},
+		'startsAt': '2020-12-30T07:20:08.775177336Z',
+		'endsAt': '0001-01-01T00:00:00Z',
+		'generatorURL': 'http://prometheus-server:9090/graph?g0.expr=round%28%281+-+%28node_memory_MemAvailable_bytes%7Bjob%3D%22sentry%22%7D+%2F+%28node_memory_MemTotal_bytes%7Bjob%3D%22sentry%22%7D%29%29%29+%2A+100%29+%3E+55&g0.tab=1',
+		'fingerprint': '09f94bd1aa7da54f'
+	}],
+	'groupLabels': {
+		'alertname': '内存使用率'
+	},
+	'commonLabels': {
+		'alertname': '内存使用率',
+		'job': 'sentry',
+		'severity': 'warning',
+		'team': 'ops'
+	},
+	'commonAnnotations': {
+		'summary': '内存使用率'
+	},
+	'externalURL': 'http://alertmanager-server:9093',
+	'version': '4',
+	'groupKey': '{}:{alertname="内存使用率"}',
+	'truncatedAlerts': 0
+}

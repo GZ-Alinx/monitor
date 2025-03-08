@@ -1,0 +1,17 @@
+[Unit]
+Description=Prometheus Alert Telegram Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/prometheus-alert-telegram/start.sh start
+ExecStop=/usr/local/prometheus-alert-telegram/start.sh stop
+ExecReload=/usr/local/prometheus-alert-telegram/start.sh restart
+Restart=on-failure
+User=root
+WorkingDirectory=/usr/local/prometheus-alert-telegram
+StandardOutput=file:/usr/local/prometheus-alert-telegram/prometheus-alert-telegram.log
+StandardError=file:/usr/local/prometheus-alert-telegram/prometheus-alert-telegram.error.log
+
+[Install]
+WantedBy=multi-user.target

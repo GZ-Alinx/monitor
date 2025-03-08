@@ -1,0 +1,79 @@
+groups:
+- name: Hosts
+  rules:
+  - alert: HighCPUUsage
+    expr: 100 - (avg by (instance, host) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
+    for: 15s
+    labels:
+      severity: critical
+      environment: prod
+      host: "{{ $labels.host }}"
+    annotations:
+      summary: "Instance {{ $labels.instance }} CPU usage is high"
+      description: "CPU usage is above 90% (current value: {{ $value }}, environment: {{ $labels.environment }}, host: {{ $labels.host }})"
+
+  - alert: HighMemoryUsage
+    expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 10
+    for: 15s
+    labels:
+      severity: warning
+      environment: prod
+      host: "{{ $labels.host }}"
+    annotations:
+      summary: "Instance {{ $labels.instance }} memory usage is high"
+      description: "Memory usage is below 10% (current value: {{ $value }}), environment: {{ $labels.environment }}, host: {{ $labels.host }}"
+
+  - alert: HostOutOfMemory
+    expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 10) * on(instance) group_left(host) node_uname_info{host=~".+"}
+    for: 1m
+    labels:
+      severity: warning
+      environment: prod
+      host: "{{ $labels.host }}"
+    annotations:
+      summary: "Host out of memory (instance {{ $labels.instance }})"
+      description: "Node memory is filling up (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}, environment: {{ $labels.environment }}, host: {{ $labels.host }}"
+
+  - alert: HostMemoryUnderMemoryPressure
+    expr: (rate(node_vmstat_pgmajfault[1m]) > 1000) * on(instance) group_left(host) node_uname_info{host=~".+"}
+    for: 1m
+    labels:
+      severity: warning
+      environment: prod
+      host: "{{ $labels.host }}"
+    annotations:
+      summary: "Host memory under memory pressure (instance {{ $labels.instance }})"
+      description: "The node is under heavy memory pressure. High rate of major page faults\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}, environment: {{ $labels.environment }}, host: {{ $labels.host }}"
+
+  - alert: HostOutOfDiskSpace
+    expr: ((node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes < 10 and ON (instance, device, mountpoint) node_filesystem_readonly == 0) * on(instance) group_left(host) node_uname_info{host=~".+"}
+    for: 1m
+    labels:
+      severity: warning
+      environment: prod
+      host: "{{ $labels.host }}"
+    annotations:
+      summary: "Host out of disk space (instance {{ $labels.instance }})"
+      description: "Disk is almost full (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}, environment: {{ $labels.environment }}, host: {{ $labels.host }}"
+
+  - alert: HostHighCpuLoad
+    expr: (sum by (instance) (avg by (mode, instance) (rate(node_cpu_seconds_total{mode!="idle"}[2m]))) > 0.8) * on(instance) group_left(host) node_uname_info{host=~".+"}
+    for: 5m
+    labels:
+      severity: warning
+      environment: prod
+      host: "{{ $labels.host }}"
+    annotations:
+      summary: "Host high CPU load (instance {{ $labels.instance }})"
+      description: "CPU load is > 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}, environment: {{ $labels.environment }}, host: {{ $labels.host }}"
+
+  - alert: HostCpuHighIowait
+    expr: (avg by (instance) (rate(node_cpu_seconds_total{mode="iowait"}[5m])) * 100 > 10) * on(instance) group_left(host) node_uname_info{host=~".+"}
+    for: 1m
+    labels:
+      severity: warning
+      environment: prod
+      host: "{{ $labels.host }}"
+    annotations:
+      summary: "Host CPU high iowait (instance {{ $labels.instance }})"
+      description: "CPU iowait > 10%. A high iowait means that you are disk or network bound.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}, environment: {{ $labels.environment }}, host: {{ $labels.host }}"
